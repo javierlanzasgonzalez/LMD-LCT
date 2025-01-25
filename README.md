@@ -96,7 +96,107 @@
 | READ COMMITTED            | Lecturas no repetibles, phantoms                 | Evita lecturas sucias, pero un mismo registro puede ser leído con valores diferentes durante la transacción.       | Utilizar REPEATABLE READ para prevenir cambios en los datos ya leídos.                                         |
 | REPEATABLE READ           | Phantoms                                        | Evita lecturas sucias y no repetibles, pero no previene la aparición de nuevos registros visibles para la transacción. | Implementar SERIALIZABLE para evitar inserciones o modificaciones externas durante la transacción.             |
 | SERIALIZABLE              | Ningún problema                                 | Proporciona máxima consistencia bloqueando toda la tabla para evitar cualquier interferencia.                      | No requiere soluciones, pero reduce la concurrencia y el rendimiento.                                          |
+Aquí tienes ejemplos prácticos para cada nivel de aislamiento en MySQL, con escenarios reales que muestran cómo funcionan y qué problemas se pueden evitar o permitir:
 
+---
+
+### **1. READ UNCOMMITTED**
+Permite leer datos no confirmados, lo que puede causar **lecturas sucias**.
+
+#### **Ejemplo**:
+- **Transacción 1**:
+  ```sql
+  START TRANSACTION;
+  UPDATE cuentas SET saldo = saldo - 100 WHERE id = 1;
+  ```
+- **Transacción 2** (antes de que la primera haga COMMIT o ROLLBACK):
+  ```sql
+  SELECT saldo FROM cuentas WHERE id = 1;
+  ```
+- **Resultado**:
+  Transacción 2 puede ver el cambio temporal (-100 en el saldo) aunque Transacción 1 decida hacer `ROLLBACK`.
+
+---
+
+### **2. READ COMMITTED**
+Evita **lecturas sucias**, pero permite **lecturas no repetibles**.
+
+#### **Ejemplo**:
+- **Transacción 1**:
+  ```sql
+  START TRANSACTION;
+  UPDATE productos SET precio = 20 WHERE id = 1;
+  COMMIT;
+  ```
+- **Transacción 2**:
+  ```sql
+  START TRANSACTION;
+  SELECT precio FROM productos WHERE id = 1; -- Resultado: 20
+  UPDATE productos SET precio = 25 WHERE id = 1;
+  COMMIT;
+  SELECT precio FROM productos WHERE id = 1; -- Resultado: 25
+  ```
+- **Resultado**:
+  El valor leído por Transacción 2 puede cambiar entre dos lecturas, mostrando **lecturas no repetibles**.
+
+---
+
+### **3. REPEATABLE READ**
+Evita **lecturas sucias** y **lecturas no repetibles**, pero no evita **phantoms** (filas que aparecen inesperadamente).
+
+#### **Ejemplo**:
+- **Transacción 1**:
+  ```sql
+  START TRANSACTION;
+  SELECT * FROM pedidos WHERE cliente_id = 1; -- Devuelve 5 pedidos
+  ```
+- **Transacción 2**:
+  ```sql
+  START TRANSACTION;
+  INSERT INTO pedidos (cliente_id, producto_id) VALUES (1, 101);
+  COMMIT;
+  ```
+- **Transacción 1 (de nuevo)**:
+  ```sql
+  SELECT * FROM pedidos WHERE cliente_id = 1; -- Devuelve los mismos 5 pedidos (sin incluir el nuevo).
+  COMMIT;
+  ```
+- **Resultado**:
+  Transacción 1 no ve los cambios realizados por Transacción 2 durante la transacción activa, evitando **lecturas no repetibles**. Sin embargo, si Transacción 1 consulta un rango mayor después de COMMIT, podría aparecer un "phantom".
+
+---
+
+### **4. SERIALIZABLE**
+Proporciona máxima consistencia, bloqueando las filas afectadas por cualquier operación, lo que evita **lecturas sucias**, **lecturas no repetibles** y **phantoms**.
+
+#### **Ejemplo**:
+- **Transacción 1**:
+  ```sql
+  SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+  START TRANSACTION;
+  SELECT * FROM ventas WHERE producto_id = 1; -- Devuelve 10 ventas
+  ```
+- **Transacción 2**:
+  ```sql
+  SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+  START TRANSACTION;
+  INSERT INTO ventas (producto_id, cliente_id) VALUES (1, 5);
+  -- Esto queda bloqueado hasta que Transacción 1 haga COMMIT o ROLLBACK.
+  ```
+- **Resultado**:
+  Transacción 2 no puede realizar cambios mientras Transacción 1 esté activa, evitando cualquier inconsistencia.
+
+---
+
+### **Resumen**
+| **Nivel de Aislamiento** | **Problemas Evitados**                  | **Problemas Permitidos**         |
+|---------------------------|----------------------------------------|----------------------------------|
+| READ UNCOMMITTED          | Ninguno                               | Lecturas sucias, no repetibles, phantoms |
+| READ COMMITTED            | Lecturas sucias                      | Lecturas no repetibles, phantoms |
+| REPEATABLE READ           | Lecturas sucias, no repetibles        | Phantoms                        |
+| SERIALIZABLE              | Lecturas sucias, no repetibles, phantoms | Ninguno                         |
+
+Estos ejemplos te ayudan a visualizar cómo afectan los niveles de aislamiento a las transacciones y a elegir el más adecuado para tu caso. 😊
 
 ### **2.3 Políticas de Bloqueo**
 
