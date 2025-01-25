@@ -96,6 +96,9 @@
 | READ COMMITTED            | Lecturas no repetibles, phantoms                 | Evita lecturas sucias, pero un mismo registro puede ser leído con valores diferentes durante la transacción.       | Utilizar REPEATABLE READ para prevenir cambios en los datos ya leídos.                                         |
 | REPEATABLE READ           | Phantoms                                        | Evita lecturas sucias y no repetibles, pero no previene la aparición de nuevos registros visibles para la transacción. | Implementar SERIALIZABLE para evitar inserciones o modificaciones externas durante la transacción.             |
 | SERIALIZABLE              | Ningún problema                                 | Proporciona máxima consistencia bloqueando toda la tabla para evitar cualquier interferencia.                      | No requiere soluciones, pero reduce la concurrencia y el rendimiento.                                          |
+
+---
+
 Aquí tienes ejemplos prácticos para cada nivel de aislamiento en MySQL, con escenarios reales que muestran cómo funcionan y qué problemas se pueden evitar o permitir:
 
 ---
