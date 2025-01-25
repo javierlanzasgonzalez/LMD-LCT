@@ -99,7 +99,7 @@
 
 ---
 
-Aquí tienes ejemplos prácticos para cada nivel de aislamiento en MySQL, con escenarios reales que muestran cómo funcionan y qué problemas se pueden evitar o permitir:
+## Aquí tienes ejemplos prácticos para cada nivel de aislamiento en MySQL, con escenarios reales que muestran cómo funcionan y qué problemas se pueden evitar o permitir:
 
 ---
 
