@@ -78,6 +78,11 @@
 
 ### **2.2 Aislamiento de Transacciones**
 
+- Puedes comprobar el nivel de aislamiento actual utilizando este comando:
+   ```sql
+  SELECT @@transaction_isolation;
+   ```
+
 - **Establecer nivel de aislamiento**:
   ```sql
   SET TRANSACTION ISOLATION LEVEL nivel;
