@@ -229,6 +229,15 @@ Estos ejemplos te ayudan a visualizar cómo afectan los niveles de aislamiento a
 - **ON DELETE SET NULL**: Establece `NULL` en registros hijos.
 - **ON DELETE RESTRICT**: Previene eliminaciones si hay referencias.
 
+| **Cláusula**      | **Comportamiento en DELETE/UPDATE**                                                               | **Ejemplo de Comando**                                                                                               |
+|--------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| **`SET NULL`**     | Establece `NULL` en las columnas hijas relacionadas.                                             | `FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL ON UPDATE SET NULL`                             |
+| **`SET DEFAULT`**  | Establece un valor por defecto en las columnas hijas relacionadas (no soportado directamente).    | Implementar mediante un **trigger** (ver ejemplo): `CREATE TRIGGER ... UPDATE pedidos SET cliente_id = 0 ...`        |
+| **`CASCADE`**      | Elimina o actualiza automáticamente los registros relacionados.                                   | `FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE ON UPDATE CASCADE`                               |
+| **`RESTRICT`**     | Impide eliminar o actualizar registros si existen relaciones.                                     | `FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT ON UPDATE RESTRICT`                             |
+| **`NO ACTION`**    | Similar a `RESTRICT`, pero la verificación ocurre al final de la transacción.                     | `FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE NO ACTION ON UPDATE NO ACTION`                           |
+
+
 ### **3.3 Validación de Datos**
 
 - **Restricciones comunes**:
