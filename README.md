@@ -85,7 +85,7 @@
 
 - **Establecer nivel de aislamiento**:
   ```sql
-  SET TRANSACTION ISOLATION LEVEL nivel;
+  SET SESSION TRANSACTION ISOLATION LEVEL nivel;
   ```
   Niveles disponibles:
   - `READ UNCOMMITTED`: Lectura de datos no confirmados.
